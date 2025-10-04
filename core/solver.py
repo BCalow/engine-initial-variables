@@ -2,12 +2,12 @@ import physics
 
 
 eqVars_dict = {
-    "specificGasContent"    :   frozenset(frozenset(), frozenset({"R", "M"})),                                              #Specific Gas Constant
+    "specificGasContent"    :   frozenset({"M", "R"}),                                              #Specific Gas Constant
     "temperatureRatio"      :   frozenset({"Ma", "T", "T_s", "gamma"}),                             #Isentropic Temperature Ratio
     "pressureRatio"         :   frozenset({"Ma", "P", "P_s", "gamma"}),                             #Isentropic Pressure Ratio
     "areaMachRelation"      :   frozenset({"A_x", "A_y", "Ma_x", "Ma_y", "gamma"}),                 #Area-Mach Relation
-    "exitVelocity"          :   frozenset({"P_e", "P_s", "T_s", "v_e", "gamma", "R"}),              #Isentropic Exit Velocity
-    "massFlow"              :   frozenset({"A_t", "mdot", "P_e", "P_s", "T_s", "gamma", "R"}),      #Choked Mass Flow
+    "exitVelocity"          :   frozenset({"P_e", "P_s", "T_s", "v_e", "R", "gamma"}),              #Isentropic Exit Velocity
+    "massFlow"              :   frozenset({"A_t", "mdot", "P_s", "T_s", "R", "gamma"}),             #Choked Mass Flow
     "thrust"                :   frozenset({"A_e", "F", "mdot", "P_a", "P_e", "v_e"}),               #Thrust
 }
 

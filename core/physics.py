@@ -4,7 +4,7 @@ import numpy
 gravity     =   9.80665             #Standard Gravity           [m/s^2]
 R_universal =   8.31446261815324    #Universal Gas Constant     [J⋅K^−1⋅mol^−1]
 
-def specificGasConstant(R, M):
+def specificGasConstant(M, R):
     """
     Specific Gas Constant
     M   :   Molar Mass
@@ -17,7 +17,7 @@ def specificGasConstant(R, M):
         (R_universal / M) - R
     )
 
-def temperatureRatio(T, T_s, Ma, gamma):
+def temperatureRatio(Ma, T, T_s, gamma):
     """
     Isentropic Temperature Ratio
 
@@ -32,7 +32,7 @@ def temperatureRatio(T, T_s, Ma, gamma):
         T / T_s - (1 + 0.5 * (gamma - 1) * Ma ** 2) ** (-1)
     )
 
-def pressureRatio(P, P_s, gamma, Ma):
+def pressureRatio(Ma, P, P_s, gamma):
     """
     Isentropic Pressure Ratio
 
@@ -65,7 +65,7 @@ def areaMachRelation(A_x, A_y, Ma_x, Ma_y, gamma):
         A_y / A_x - Ma_x / Ma_y * numpy.sqrt(((1 + (gamma - 1) / 2 * Ma_y ** 2) / (1 + (gamma - 1) / 2 * Ma_x ** 2)) ** ((gamma + 1) / (gamma - 1)))
     )
 
-def exitVelocity(v_e, T_s, P_e, P_s, R, gamma):
+def exitVelocity(P_e, P_s, T_s, v_e, R, gamma):
     """
     Isentropic Exit Velocity
 
@@ -83,7 +83,7 @@ def exitVelocity(v_e, T_s, P_e, P_s, R, gamma):
         v_e - numpy.sqrt((2 * gamma) / (gamma - 1) * R * T_s * (1 - (P_e / P_s) ** ((gamma - 1) / gamma)))
     )
 
-def massFlow(mdot, A_t, P_s, gamma, R, T_s, P_e):
+def massFlow(A_t, mdot, P_s, T_s, R, gamma):
     """
     Choked Mass Flow
 
@@ -102,7 +102,7 @@ def massFlow(mdot, A_t, P_s, gamma, R, T_s, P_e):
         mdot - A_t * P_s * numpy.sqrt(gamma / (R * T_s)) * (2 / (gamma + 1)) ** ((gamma + 1) / (2 * (gamma - 1)))
     )
 
-def thrust(F, mdot, v_e, P_e, P_a, A_e):
+def thrust(A_e, F, mdot, P_a, P_e, v_e):
     """
     Thrust
 
