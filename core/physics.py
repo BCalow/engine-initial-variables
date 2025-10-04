@@ -20,10 +20,11 @@ def specificGasConstant(R, M):
 def TemperatureRatio(T, T_s, Ma, gamma):
     """
     Isentropic Temperature Ratio
+
+    Ma      :   Mach Number @ Point X    
     T       :   Temperature @ Point X
-    Ma      :   Mach Number @ Point X
-    gamma   :   Ratio Of Specific Heats
     T_s     :   Stagnation Temperature
+    gamma   :   Ratio Of Specific Heats
 
     0 = T / T_s - [1 + 1/2 * (gamma - 1) * Ma ^ 2]
     """
@@ -34,10 +35,11 @@ def TemperatureRatio(T, T_s, Ma, gamma):
 def pressureRatio(P, P_s, gamma, Ma):
     """
     Isentropic Pressure Ratio
-    P       :   Pressure @ Point X
+
     Ma      :   Mach Number @ Point X
-    gamma   :   Ratio Of Specific Heats
+    P       :   Pressure @ Point X
     P_s     :   Stagnation Temperature
+    gamma   :   Ratio Of Specific Heats
 
     0 = P / P_s - [1 + 1/2 * (gamma - 1) * Ma ^ 2] ^ (gamma / (gamma - 1))
     """
@@ -49,6 +51,7 @@ def pressureRatio(P, P_s, gamma, Ma):
 def areaMachRelation(A_x, A_y, Ma_x, Ma_y, gamma):
     """
     Area-Mach Relation
+
     A_x     :   Area @ Point X
     A_y     :   Area @ Point Y
     Ma_x    :   Mach Number @ Point X
@@ -65,12 +68,13 @@ def areaMachRelation(A_x, A_y, Ma_x, Ma_y, gamma):
 def exitVelocity(v_e, T_s, P_e, P_s, R, gamma):
     """
     Isentropic Exit Velocity
-    v_e     :   Velocity @ Exit
+
     P_e     :   Pressure @ Exit
-    gamma   :   Ratio Of Specific Heats
-    T_s     :   Stagnation Temperature
     P_s     :   Stagnation Pressure
-    R       :   Specific Gas Constant
+    T_s     :   Stagnation Temperature
+    v_e     :   Velocity @ Exit
+    gamma   :   Ratio Of Specific Heats
+    R       :   Specific Gas Constan
 
     0 = v_e - sqrt((2 * gamma) / (gamma - 1) * R * T_s * (1 - (P_e / P_s) ** ((gamma - 1) / gamma)))
     """
@@ -82,13 +86,14 @@ def exitVelocity(v_e, T_s, P_e, P_s, R, gamma):
 def massFlow(mdot, A_t, P_s, gamma, R, T_s, P_e):
     """
     Choked Mass Flow
+
+    A_t     :   Area @ Throat    
     mdot    :   Mass Flow Rate
-    A_t     :   Area @ Throat
+    P_e     :   Pressure @ Exit
     P_s     :   Stagnation Pressure
+    T_s     :   Stangation Temperature
     gamma   :   Ratio Of Specific Heats
     R       :   Specific Gas Constant
-    T_s     :   Stangation Temperature
-    P_e     :   Pressure @ Exit
 
     0 = mdot - A_t * P_s * sqrt(gamma / (R * T_s)) * (2 / (gamma + 1)) ^ ((gamma + 1) / (2 * (gamma - 1)))
     """
@@ -100,12 +105,13 @@ def massFlow(mdot, A_t, P_s, gamma, R, T_s, P_e):
 def thrust(F, mdot, v_e, P_e, P_a, A_e):
     """
     Thrust
-    mdot    :   Mass Flow Rate
-    F       :   Force
-    v_e     :   Velocity @ Exit
-    P_e     :   Pressure @ Exit
-    P_a     :   Pressure @ Ambient
+    
     A_e     :   Area @ Exit
+    F       :   Force
+    mdot    :   Mass Flow Rate
+    P_a     :   Pressure @ Ambient
+    P_e     :   Pressure @ Exit
+    v_e     :   Velocity @ Exit
 
     0 = F - mdot * v_e + (P_e - P_a) * A_e
     """
