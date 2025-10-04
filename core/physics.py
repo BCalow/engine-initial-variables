@@ -17,7 +17,7 @@ def specificGasConstant(R, M):
         (R_universal / M) - R
     )
 
-def TemperatureRatio(T, T_s, Ma, gamma):
+def temperatureRatio(T, T_s, Ma, gamma):
     """
     Isentropic Temperature Ratio
 
@@ -105,7 +105,7 @@ def massFlow(mdot, A_t, P_s, gamma, R, T_s, P_e):
 def thrust(F, mdot, v_e, P_e, P_a, A_e):
     """
     Thrust
-    
+
     A_e     :   Area @ Exit
     F       :   Force
     mdot    :   Mass Flow Rate
