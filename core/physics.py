@@ -21,7 +21,7 @@ def temperatureRatio(Ma, T, T_s, gamma):
     """
     Isentropic Temperature Ratio
 
-    Ma      :   Mach Number @ Point X    
+    Ma      :   Mach Number @ Point X
     T       :   Temperature @ Point X
     T_s     :   Stagnation Temperature
     gamma   :   Ratio Of Specific Heats
