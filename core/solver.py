@@ -18,34 +18,28 @@ eqVars_dict = {
 
 
 #---------------------------------------------
-# Initial Guess 
-#---------------------------------------------
-
-
-
-#---------------------------------------------
 # Iterative Solver
 #---------------------------------------------
-def solver(inputVars, derivedVars):
-    running = True
+def equationSolver(inputVars, derivedVars):
 
     while running:
         running = False
-        for equation_id, equationVars in eqVars_dict.items():
-            unknownVars = equationVars - list(inputVars.keys()) - list(derivedVars.keys)
-            knownVars = equationVars - unknownVars
-            if len(unknownVars) == 1:
-                result = physicsSolver(equation_id, knownVars)
-                derivedVars.update({unknownVars: result})
+
+        for eqID, eqVars in eqVars_dict:
+            #Merge all known vars into a single list
+            knownVars = inputVars.copy()
+            knownVars.update(derivedVars)
+
+            #Find the unknown vars for this equation
+            eqVars_unknown = eqVars - knownVars.keys()
+
+            #Make dict of vars used by equation
+            usedVars = {var: knownVars.get(var, None) for var in eqVars}
+
+            if len(eqVars_unknown) == 1:
+                unknown = list(eqVars_unknown)[0]
+                function = getattr(physics, eqID.split("@")[0])
+
                 running = True
     
-    return derivedVars
-
-"""
-#Equation solver
-def physicsSolver(equation_id, equationVars):
-    equation_id = equation_id.split("@")[0]
-    equation = getattr(physics, equation_id)
-    result = fsolve(equation, equationVars, guess=)
-    return result
-"""
+    def 
