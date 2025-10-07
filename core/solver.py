@@ -1,4 +1,6 @@
 from scipy.optimize import fsolve
+import numpy as np
+import inspect
 
 import physics
 
@@ -51,9 +53,9 @@ def equationSolver(inputVars, derivedVars):
 
         for eqID, eqVars in eqVars_dict.items():
             #Merge all known vars into a single list
-            knownVars = {}
-            knownVars.update({k: v for k, v in inputVars.items() if v is not None})
-            knownVars.update({k: v for k, v in derivedVars.items() if v is not None})
+            knownVars = {
+                **{k:v for k,v in inputVars.items() if v is not None},
+                **{k:v for k,v in derivedVars.items() if v is not None}}
 
             #Find the unknown vars for this equation
             eqVars_unknown = eqVars - knownVars.keys()
@@ -61,23 +63,39 @@ def equationSolver(inputVars, derivedVars):
             #Make dict of vars used by equation
             usedVars = {var: knownVars.get(var, None) for var in eqVars}
 
+            if len(eqVars_unknown) != 1:
+                continue  
+
             if len(eqVars_unknown) == 1:
                 unknown = list(eqVars_unknown)[0]
                 function = getattr(physics, eqID.split("@")[0])
 
                 usedVars = varNormalizer(eqID, usedVars)
 
+                for generic, aliases in varAlias_dict.items():
+                    if unknown in aliases:
+                        unknown = generic
+                        break
+
                 #fsolve intermediary
                 def equationRunner(guess):
                     usedVars_temp = usedVars.copy()
-                    usedVars_temp[unknown] = float(guess)
-                    return function(**usedVars_temp)
+                    usedVars_temp[unknown] = float(np.asarray(guess).item())
+
+                    valid_args = inspect.signature(function).parameters.keys()
+                    args = {k: v for k, v in usedVars_temp.items() if k in valid_args}
+
+                    return function(**args)
                 
                 guess = guess_dict.get(unknown, 1.0)
                 
-                result = fsolve(equationRunner, guess)
+                result = fsolve(equationRunner, guess)[0]
+                derivedVars[unknown] = result
 
-                return result
+                running = True
+                print("Running")
+
+    return derivedVars
 
 
 #---------------------------------------------
@@ -87,21 +105,20 @@ def varNormalizer(eqID, usedVars):
     """
     Normalizes Variable Names
     """
-
     if eqID in eqID_normalize:
         for generic, aliases in varAlias_dict.items():
             for alt in aliases:
                 if alt in usedVars:
                     usedVars[generic] = usedVars.pop(alt)
-    
     return usedVars
 
-
-#Testing Stuff
+#---------------------------------------------
+#Testing Shtuff
+#---------------------------------------------
 inputVars = {
     "Ma_e": 5,
     "gamma": 1.3,
-    "T_e": 1500,
+    "T_s": 1500,
 }
 
 derivedVars = {
