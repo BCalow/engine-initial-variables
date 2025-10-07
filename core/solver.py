@@ -77,6 +77,9 @@ def equationSolver(inputVars, derivedVars):
                         unknown = generic
                         break
 
+                if unknown in derivedVars:
+                    continue
+
                 #fsolve intermediary
                 def equationRunner(guess):
                     usedVars_temp = usedVars.copy()
@@ -90,7 +93,12 @@ def equationSolver(inputVars, derivedVars):
                 guess = guess_dict.get(unknown, 1.0)
                 
                 result = fsolve(equationRunner, guess)[0]
-                derivedVars[unknown] = result
+                if eqID in eqID_normalize:
+                    for generic, aliases in varAlias_dict.items():
+                        if unknown == generic:
+                            for alt in aliases:
+                                if alt in eqVars_dict[eqID]:  # only copy to aliases used in this equation
+                                    derivedVars[alt] = result
 
                 running = True
                 print("Running")
@@ -119,6 +127,7 @@ inputVars = {
     "Ma_e": 5,
     "gamma": 1.3,
     "T_s": 1500,
+    "P_s": 1000000,
 }
 
 derivedVars = {
