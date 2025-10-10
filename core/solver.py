@@ -97,8 +97,11 @@ def equationSolver(inputVars, derivedVars):
                     for generic, aliases in varAlias_dict.items():
                         if unknown == generic:
                             for alt in aliases:
-                                if alt in eqVars_dict[eqID]:  # only copy to aliases used in this equation
+                                if alt in eqVars_dict[eqID]:
                                     derivedVars[alt] = result
+                
+                else:
+                    derivedVars[unknown] = result
 
                 running = True
                 print("Running")
@@ -124,10 +127,11 @@ def varNormalizer(eqID, usedVars):
 #Testing Shtuff
 #---------------------------------------------
 inputVars = {
-    "Ma_e": 5,
-    "gamma": 1.3,
-    "T_s": 1500,
+    "P_e": 100000,
     "P_s": 1000000,
+    "T_s": 2500,
+    "R": 290,
+    "gamma": 1.31,
 }
 
 derivedVars = {
