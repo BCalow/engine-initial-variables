@@ -1,27 +1,27 @@
 from PyQt6.QtWidgets import (
-                            QApplication,
-                            QWidget,
-                            QVBoxLayout,
-                            QCheckBox,
-                            QLabel,
-                            QGridLayout,
-                            QHBoxLayout,
-                            QLineEdit,
-                            QGroupBox,
-                            QSizePolicy,
-                            QSpacerItem,
-                            QScrollArea,
-                            QComboBox,
-                            QMainWindow,
-                            QPushButton,
-                            QFrame,
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QCheckBox,
+    QLabel,
+    QGridLayout,
+    QHBoxLayout,
+    QLineEdit,
+    QGroupBox,
+    QSizePolicy,
+    QSpacerItem,
+    QScrollArea,
+    QComboBox,
+    QMainWindow,
+    QPushButton,
+    QFrame,
 )
 from PyQt6.QtGui import(
-                            QFontMetrics
+    QFontMetrics
 )
 from PyQt6.QtCore import(
-                            Qt,
-                            pyqtSignal
+    Qt,
+    pyqtSignal
 )
 import sys
 
@@ -61,6 +61,7 @@ generalInputs = ["Misc. Data", [
 # Inputs widget
 #---------------------------------------------
 class InputWidget(QWidget):
+    checkboxToggled = pyqtSignal(str, bool)
     #---------------------------------------------
     # Inputs widget setup
     #---------------------------------------------
@@ -73,8 +74,8 @@ class InputWidget(QWidget):
         self.layout.setHorizontalSpacing(12)
         self.layout.setVerticalSpacing(6)
 
-        # Row counter
         self.row = 0
+        self.checkboxes = {}
 
         self.addSection(chamberInputs[0], chamberInputs[1])
         self.addSection(throatInputs[0], throatInputs[1])
@@ -89,7 +90,6 @@ class InputWidget(QWidget):
     # Add section
     #---------------------------------------------
     def addSection(self, title, fields):
-        """Add a titled input section"""
         # Section Header
         header = QLabel(f"<b>{title}</b>")
         self.layout.addWidget(header, self.row, 0, 1, 3)
@@ -98,25 +98,36 @@ class InputWidget(QWidget):
 
         # Add fields
         for name, symbol, units in fields:
+            # Add checkbox
+            checkbox = QCheckBox()
+            checkbox.setChecked(False)
+            self.checkboxes[name] = checkbox
+
+            # Add name, symbol, input
             label_name = QLabel(name)
             label_symbol = QLabel(symbol)
             input_field = QLineEdit()
 
+            # Set input size
             input_field.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             input_field.setFixedWidth(120)
 
+            # Checkbox signal
+            checkbox.toggled.connect(lambda state, n=name: self.checkboxToggled.emit(n, state))
+
             # Add to widget
-            self.layout.addWidget(label_name, self.row, 0)
-            self.layout.addWidget(label_symbol, self.row, 1)
-            self.layout.addWidget(input_field, self.row, 2)
+            self.layout.addWidget(checkbox, self.row, 0)
+            self.layout.addWidget(label_name, self.row, 1)
+            self.layout.addWidget(label_symbol, self.row, 2)
+            self.layout.addWidget(input_field, self.row, 3)
 
             if units is not None:
+                # Add unit dropdown select
                 unit_dropdown = QComboBox()
                 unit_dropdown.addItems(units)
                 unit_dropdown.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 unit_dropdown.setFixedWidth(80)
-                self.layout.addWidget(unit_dropdown, self.row, 3)
-
+                self.layout.addWidget(unit_dropdown, self.row, 4)
 
             self.row += 1
 
@@ -124,7 +135,7 @@ class InputWidget(QWidget):
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
-        self.layout.addWidget(separator, self.row, 0, 1, 4)
+        self.layout.addWidget(separator, self.row, 0, 1, 5)
         self.row += 1
 
 
@@ -170,13 +181,24 @@ class MainWindow(QMainWindow):
         #self.scrollable_inputs = ScrollArea()
         #centralLayout.addWidget(self.scrollable_inputs)
 
+        # Input sections
         self.inputSection = InputWidget()
         centralLayout.addWidget(self.inputSection)
 
+        # Global buttons
         self.globalButtons = GlobalButtons()
         centralLayout.addWidget(self.globalButtons)
 
+        # Connections
+        self.inputSection.checkboxToggled.connect(self.checkboxToggled)
+
         self.setCentralWidget(centralWidget)
+
+    #---------------------------------------------
+    # Checkbox toggled
+    #---------------------------------------------
+    def checkboxToggled(self, name, state):
+        print(f"{name} checkbox {'checked' if state else 'unchecked'}")
  
 
 
