@@ -11,6 +11,9 @@ from PyQt6.QtWidgets import (
                             QSizePolicy,
                             QSpacerItem,
                             QScrollArea,
+                            QComboBox,
+                            QMainWindow,
+                            QPushButton,
 )
 from PyQt6.QtGui import(
                             QFontMetrics
@@ -51,34 +54,53 @@ generalInputs = [
     ["Specific Gas Constant",		"R"		],
     ["Molar Mass",					"M"		],
 ]
+groupNames = ["Chamber", "Throat", "Exit", "Stagnation", "Misc"]
+groupVars = [chamberInputs, throatInputs, exitInputs, stagnationInputs, generalInputs]
 
-#Main Window
-class mainWindow(QWidget):
+
+#---------------------------------------------
+# Main window
+#---------------------------------------------
+class mainWindow(QMainWindow):
+    toggled = pyqtSignal(str, bool)
+
+    #---------------------------------------------
+    # Main window setup
+    #---------------------------------------------
     def __init__(self):
         super().__init__()
-        #Window Setup
+        # Window Setup
         self.setWindowTitle("Engine Initial Variables")
         self.resize(500, 1000)
-        scrollArea = QScrollArea()
-        scrollArea.setWidgetResizable(True)
-        content = QWidget()
-        contentLayout = QVBoxLayout(content)
 
-        #Dict setup
-        inputVars = {}
-        derivedVars = {}
+        # Central widget
+        centralWidget = QWidget()
+        centralLayout = QVBoxLayout(centralWidget)
 
-    
-    def addGroup()
+        # Scrollable widget
+        self.scrollable_inputs = ScrollArea()
+        centralLayout.addWidget(self.scrollable_inputs)
+
+        # Global buttons
+        self.run_button = QPushButton("Run Solver")
+        centralLayout.addWidget(self.run_button, alignment=Qt.AlignmentFlag.AlignRight)
         
 
+    #---------------------------------------------
+    # Add group
+    #---------------------------------------------
+    #def addGroup(self, layout, row, title, data):
 
 
+    #---------------------------------------------
+    # Add variable row
+    #---------------------------------------------
+    #def addVariable(self, text=None, parent=None, units=None):        
 
 
-
-
-#Initialization Shtuff
+#---------------------------------------------
+# Initialization Shtuff
+#---------------------------------------------
 def main():
     app = QApplication(sys.argv)
 
