@@ -23,10 +23,12 @@ from PyQt6.QtCore import(
     Qt,
     pyqtSignal
 )
-from functools import partial
 import sys
 
-#Group vars information
+
+#---------------------------------------------
+# Group vars information
+#---------------------------------------------
 chamberInputs = ["Chamber Data", [
    #["Name",						"Symbol",           ["Units"],                          ],
     ["Pressure @ Chamber",			"P_c",	            ["Pa", "kPa", "bar", "psi", "atm"]  ],
@@ -62,7 +64,7 @@ generalInputs = ["Misc. Data", [
 # Inputs widget
 #---------------------------------------------
 class InputWidget(QWidget):
-    checkboxToggled = pyqtSignal(str, bool)
+    checkboxToggled = pyqtSignal()
     #---------------------------------------------
     # Inputs widget setup
     #---------------------------------------------
@@ -113,8 +115,12 @@ class InputWidget(QWidget):
             input_field.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             input_field.setFixedWidth(120)
 
+            # Field disabled when not selected
+            input_field.setEnabled(False)
+            checkbox.toggled.connect(input_field.setEnabled)
+
             # Checkbox signal
-            checkbox.toggled.connect(partial(self.checkboxToggled.emit, name))
+            checkbox.toggled.connect(lambda _: self.checkboxToggled.emit())
 
             # Add to widget
             self.layout.addWidget(checkbox, self.row, 0)
@@ -150,6 +156,8 @@ class InputWidget(QWidget):
 # Global buttons widget
 #---------------------------------------------
 class GlobalButtons(QWidget):
+    runButtonClicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -158,9 +166,12 @@ class GlobalButtons(QWidget):
         self.layout.setContentsMargins(10, 10, 10, 10)
 
         # Buttons
-        self.runButton = QPushButton("run", self)
+        self.runButton = QPushButton("Run", self)
         self.runButton.setFixedWidth(120)
         self.layout.addWidget(self.runButton)
+
+        # Run signal
+        self.runButton.clicked.connect(lambda: self.runButtonClicked.emit())
 
         self.setLayout(self.layout)
 
@@ -189,24 +200,14 @@ class MainWindow(QMainWindow):
         #centralLayout.addWidget(self.scrollable_inputs)
 
         # Input sections
-        self.InputSection = InputWidget()
-        centralLayout.addWidget(self.InputSection)
+        self.inputSection = InputWidget()
+        centralLayout.addWidget(self.inputSection)
 
         # Global buttons
-        self.GlobalButtons = GlobalButtons()
-        centralLayout.addWidget(self.GlobalButtons)
-
-        # Connections
-        self.InputSection.checkboxToggled.connect(self.checkboxToggled)
+        self.globalButtons = GlobalButtons()
+        centralLayout.addWidget(self.globalButtons)
 
         self.setCentralWidget(centralWidget)
-
-    #---------------------------------------------
-    # Checkbox toggled
-    #---------------------------------------------
-    def checkboxToggled(self, name, state):
-        print(self.InputSection.getCheckedVariables())
- 
 
 
 #---------------------------------------------

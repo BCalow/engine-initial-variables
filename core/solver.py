@@ -2,7 +2,7 @@ from scipy.optimize import fsolve
 import numpy as np
 import inspect
 
-import physics
+import core.physics as physics
 
 
 #Equation var sets
@@ -122,20 +122,3 @@ def varNormalizer(eqID, usedVars):
                 if alt in usedVars:
                     usedVars[generic] = usedVars.pop(alt)
     return usedVars
-
-#---------------------------------------------
-#Testing Shtuff
-#---------------------------------------------
-inputVars = {
-    "P_e": 100000,
-    "P_s": 1000000,
-    "T_s": 2500,
-    "R": 290,
-    "gamma": 1.31,
-}
-
-derivedVars = {
-}
-
-result = equationSolver(inputVars, derivedVars)
-print("Final results:", result)

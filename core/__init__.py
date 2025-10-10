@@ -11,6 +11,9 @@ from .solver import (
     equationSolver
 )
 from .units import *
+from .controller import (
+    Controller
+)
 
 __all__ = [
     "specificGasConstant", 
