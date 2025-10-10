@@ -23,6 +23,7 @@ from PyQt6.QtCore import(
     Qt,
     pyqtSignal
 )
+from functools import partial
 import sys
 
 #Group vars information
@@ -113,7 +114,7 @@ class InputWidget(QWidget):
             input_field.setFixedWidth(120)
 
             # Checkbox signal
-            checkbox.toggled.connect(lambda state, n=name: self.checkboxToggled.emit(n, state))
+            checkbox.toggled.connect(partial(self.checkboxToggled.emit, name))
 
             # Add to widget
             self.layout.addWidget(checkbox, self.row, 0)
@@ -138,9 +139,15 @@ class InputWidget(QWidget):
         self.layout.addWidget(separator, self.row, 0, 1, 5)
         self.row += 1
 
+    #---------------------------------------------
+    # Get Checked variables
+    #---------------------------------------------
+    def getCheckedVariables(self):
+        return [name for name, checkbox in self.checkboxes.items() if checkbox.isChecked()]
+
 
 #---------------------------------------------
-# Inputs widget
+# Global buttons widget
 #---------------------------------------------
 class GlobalButtons(QWidget):
     def __init__(self):
@@ -182,15 +189,15 @@ class MainWindow(QMainWindow):
         #centralLayout.addWidget(self.scrollable_inputs)
 
         # Input sections
-        self.inputSection = InputWidget()
-        centralLayout.addWidget(self.inputSection)
+        self.InputSection = InputWidget()
+        centralLayout.addWidget(self.InputSection)
 
         # Global buttons
-        self.globalButtons = GlobalButtons()
-        centralLayout.addWidget(self.globalButtons)
+        self.GlobalButtons = GlobalButtons()
+        centralLayout.addWidget(self.GlobalButtons)
 
         # Connections
-        self.inputSection.checkboxToggled.connect(self.checkboxToggled)
+        self.InputSection.checkboxToggled.connect(self.checkboxToggled)
 
         self.setCentralWidget(centralWidget)
 
@@ -198,7 +205,7 @@ class MainWindow(QMainWindow):
     # Checkbox toggled
     #---------------------------------------------
     def checkboxToggled(self, name, state):
-        print(f"{name} checkbox {'checked' if state else 'unchecked'}")
+        print(self.InputSection.getCheckedVariables())
  
 
 
