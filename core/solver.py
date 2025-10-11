@@ -42,17 +42,22 @@ eqID_normalize = {
 #---------------------------------------------
 # Iterative Solver
 #---------------------------------------------
-def equationSolver(inputVars, derivedVars):
+def equationSolver(inputVars:dict, derivedVars:dict):
     '''
     Solves equations
     '''
+
+    # Raises TypeError if inputVars or derivedVars are not a dict
+    if not isinstance(inputVars, dict) or not isinstance(derivedVars, dict):
+        raise TypeError("inputVars and derivedVars must be a dict")
+
     running = True
 
     while running:
         running = False
 
         for eqID, eqVars in eqVars_dict.items():
-            #Merge all known vars into a single list
+            #Merge all known vars into a single dict
             knownVars = {
                 **{k:v for k,v in inputVars.items() if v is not None},
                 **{k:v for k,v in derivedVars.items() if v is not None}}
@@ -107,6 +112,56 @@ def equationSolver(inputVars, derivedVars):
                 print("Running")
 
     return derivedVars
+
+
+#---------------------------------------------
+# Constraint Checker
+#---------------------------------------------
+def constraintChecker(inputVars:dict):
+
+    '''Checks for constraints and finds derived vars'''
+
+    # Raises typeError if inputVars is not a dict
+    if not isinstance(inputVars, dict):
+        raise TypeError("inputVars must be a dict")
+    
+    running = True
+    derivedVars = {}
+
+    while running:
+        running = False
+        for eqID, eqVars in eqVars_dict.items():
+            # Merge all selected/known vars into a single dict
+            selectedVars = {
+                **{k:v for k,v in inputVars.items()}
+                **{k:v for k,v in derivedVars.items()}
+            }
+
+            #Find the unknown vars for this equation
+            eqVars_unknown = eqVars - selectedVars.keys()
+
+            if len(eqVars_unknown) != 1:
+                continue
+
+            if len(eqVars_unknown) == 1:
+                
+                unknown = list(eqVars_unknown)[0]
+
+                if eqID in eqID_normalize:
+                    for generic, aliases in varAlias_dict.items():
+                        if unknown == generic:
+                            for alt in aliases:
+                                if alt in eqVars_dict[eqID]:
+                                    derivedVars[alt] = None
+                
+                else:
+                    derivedVars[unknown] = None
+
+                    running = True
+    return derivedVars
+
+
+
 
 
 #---------------------------------------------
