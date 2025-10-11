@@ -7,22 +7,21 @@ import core.physics as physics
 
 # Equation var sets
 eqVars_dict = {
-    "specificGasConstant"       :   frozenset({"M", "R"}),                                              #Specific Gas Constant
-    "temperatureRatio@Chamber"  :   frozenset({"Ma_c", "T_c", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Chamber
-    "temperatureRatio@Throat"   :   frozenset({"Ma_t", "T_t", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Throat
-    "temperatureRatio@Exit"     :   frozenset({"Ma_e", "T_e", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Exit
-    "pressureRatio@Chamber"     :   frozenset({"Ma_c", "P_c", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Chamber
-    "pressureRatio@Throat"      :   frozenset({"Ma_t", "P_t", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Throat
-    "pressureRatio@Exit"        :   frozenset({"Ma_e", "P_e", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Exit
-    "areaMachRelation"          :   frozenset({"A_t", "A_e", "Ma_t", "Ma_e", "gamma"}),                 #Area-Mach Relation
-    "exitVelocity"              :   frozenset({"P_e", "P_s", "T_s", "v_e", "R", "gamma"}),              #Isentropic Exit Velocity
-    "massFlow"                  :   frozenset({"A_t", "mdot", "P_s", "T_s", "R", "gamma"}),             #Choked Mass Flow
-    "thrust"                    :   frozenset({"A_e", "F", "mdot", "P_a", "P_e", "v_e"}),               #Thrust
+    "specificGasConstant"       :   frozenset({"M", "R"}),                                              # Specific Gas Constant
+    "temperatureRatio@Throat"   :   frozenset({"Ma_t", "T_t", "T_s", "gamma"}),                         # Isentropic Temperature Ratio @ Throat
+    "temperatureRatio@Exit"     :   frozenset({"Ma_e", "T_e", "T_s", "gamma"}),                         # Isentropic Temperature Ratio @ Exit
+    "pressureRatio@Throat"      :   frozenset({"Ma_t", "P_t", "P_s", "gamma"}),                         # Isentropic Pressure Ratio @ Throat
+    "pressureRatio@Exit"        :   frozenset({"Ma_e", "P_e", "P_s", "gamma"}),                         # Isentropic Pressure Ratio @ Exit
+    "temperatureEquivalence"    :   frozenset({"T_c", "T_s"}),                                          # Temperature Equivalence
+    "pressureEquivalence"       :   frozenset({"P_c", "P_s"}),                                          # Pressure Equivalence
+    "areaMachRelation"          :   frozenset({"A_t", "A_e", "Ma_t", "Ma_e", "gamma"}),                 # Area-Mach Relation
+    "exitVelocity"              :   frozenset({"P_e", "P_s", "T_s", "v_e", "R", "gamma"}),              # Isentropic Exit Velocity
+    "massFlow"                  :   frozenset({"A_t", "mdot", "P_s", "T_s", "R", "gamma"}),             # Choked Mass Flow
+    "thrust"                    :   frozenset({"A_e", "F", "mdot", "P_a", "P_e", "v_e"}),               # Thrust
 }
 
 # Constants
 constantVars = {
-    "Ma_c"      :   0,
     "Ma_t"      :   1,
 }
 
@@ -33,17 +32,15 @@ guess_dict = {
 
 # Var aliases
 varAlias_dict = {
-    "Ma"    :   ["Ma_t", "Ma_e", "Ma_c"],
-    "P"     :   ["P_t", "P_e", "P_c"],
-    "T"     :   ["T_t", "T_e", "T_c"],
+    "Ma"    :   ["Ma_t", "Ma_e"],
+    "P"     :   ["P_t", "P_e"],
+    "T"     :   ["T_t", "T_e"],
 }
 
 # Eq's to be normalized
 eqID_normalize = {
-    "temperatureRatio@Chamber",
     "temperatureRatio@Throat", 
     "temperatureRatio@Exit",
-    "pressureRatio@Chamber",
     "pressureRatio@Throat",
     "pressureRatio@Exit",
 }
@@ -66,8 +63,7 @@ def equationSolver(inputVars:dict):
 
     # Protection against infinite loops
     iteration_count = 0
-    max_iterations = 50
-    tol_r, tol_a = 1e-6, 1e-9   # Relative and absolute tolerances
+    max_iterations = 100
 
     while running and iteration_count <= max_iterations:
         running = False
@@ -142,7 +138,7 @@ def equationSolver(inputVars:dict):
 # Constraint Checker
 #---------------------------------------------
 def constraintChecker(inputVars:dict):
-    '''Checks for constraints and finds derived vars'''
+    """Checks for constraints and finds derived vars"""
 
     # Raises typeError if inputVars is not a dict
     if not isinstance(inputVars, dict):
@@ -153,7 +149,7 @@ def constraintChecker(inputVars:dict):
 
     # Protection against infinite loops
     iteration_count = 0
-    max_iterations = 50
+    max_iterations = 100
 
     while running and iteration_count <= max_iterations:
         running = False
@@ -172,17 +168,17 @@ def constraintChecker(inputVars:dict):
             if len(eqVars_unknown) != 1:
                 continue
 
-            if len(eqVars_unknown):
+            if len(eqVars_unknown) == 1:
                 unknown = next(iter(eqVars_unknown))
+
+                if unknown in inputVars:
+                    continue
             
                 derivedVars[unknown] = None
                 running = True
 
     print("finished")
     return derivedVars
-
-
-
 
 
 #---------------------------------------------

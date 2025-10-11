@@ -119,3 +119,31 @@ def thrust(A_e, F, mdot, P_a, P_e, v_e):
     return (
         F - (mdot * v_e + (P_e - P_a) * A_e)
     )
+
+def temperatureEquivalence(T_c, T_s):
+    """
+    Temperature Equivalence
+
+    T_c     :   Temperature @ Chamber
+    T_s     :   Temperature @ Stagnation
+
+    0 ≈ T_c - T_s
+    """
+
+    return (
+        T_c - T_s
+    )
+
+def pressureEquivalence(P_c, P_s):
+    """
+    Pressure Equivalence
+
+    P_c     :   Pressure @ Chamber
+    P_s     :   Pressure @ Stagnation
+
+    0 ≈ P_c - P_s
+    """
+
+    return (
+        P_c - P_s
+    )
