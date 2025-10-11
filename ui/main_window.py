@@ -47,13 +47,20 @@ exitInputs = ["Exit Data", [
     ["Mach Number @ Exit",			"Ma_e",	            None                                ],
     ["Pressure @ Exit",				"P_e",	            ["Pa", "kPa", "bar", "psi", "atm"]  ],
     ["Temperature @ Exit",			"T_e",	            ["°C", "°K", "°F"]                  ],
+    ["Velocity @ Exit",             "v_e",              ["m/s", "ft/s"]                     ],
 ]]
 stagnationInputs = ["Stagnation Data", [
    #["Name",						"Symbol",           ["Units"],                          ],
     ["Pressure @ Stagnation",		"P_s",	            ["Pa", "kPa", "bar", "psi", "atm"]  ],
     ["Temperature @ Stagnation",	"T_s",	            ["°C", "°K", "°F"]                  ],
 ]]
-generalInputs = ["Misc. Data", [
+generalInputs = ["General Data", [
+   #["Name",						"Symbol",           ["Units"],                          ],
+    ["Force",                       "F",                ["N", "lbf"]                        ],
+    ["Mass Flow",                   "mdot",             ["kg/s", "g/s", "lbs/s"]            ],
+    ["Pressure @ Ambient",          "P_a",              ["Pa", "kPa", "bar", "psi", "atm"]  ],
+]]
+miscInputs = ["Misc. Data", [
    #["Name",						"Symbol",           ["Units"],                          ],
     ["Ratio Of Specific Heats",		"gamma",	        None                                ],
     ["Specific Gas Constant",		"R",		        None                                ],
@@ -85,7 +92,8 @@ class InputWidget(QWidget):
         self.addSection(throatInputs[0], throatInputs[1])
         self.addSection(exitInputs[0], exitInputs[1])
         self.addSection(stagnationInputs[0], stagnationInputs[1])
-        self.addSection(generalInputs[0], generalInputs[1])
+        self.addSection(generalInputs[0], miscInputs[1])
+        self.addSection(miscInputs[0], miscInputs[1])
 
         self.layout.setRowStretch(self.row, 1)
         self.setLayout(self.layout)
