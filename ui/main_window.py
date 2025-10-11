@@ -242,9 +242,17 @@ class InputWidget(QWidget):
             unit_dropdown = widgets["unit"]
             
             input_field = widgets["input"]
-            input_field.clear()
             input_field.setToolTip("")
             input_field.setStyleSheet("")
+
+            if checkbox.isChecked():
+                input_field.setEnabled(True)
+                if unit_dropdown:
+                    unit_dropdown.setEnabled(True)
+            else:
+                input_field.setEnabled(False)
+                if unit_dropdown:
+                    unit_dropdown.setEnabled(False)
                 
 
 #---------------------------------------------
