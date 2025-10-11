@@ -128,13 +128,18 @@ def constraintChecker(inputVars:dict):
     running = True
     derivedVars = {}
 
-    while running:
+    # Protection against infinite loops
+    iteration_count = 0
+    max_iterations = 50
+
+    while running and iteration_count < max_iterations:
         running = False
+        iteration_count += 1
+
         for eqID, eqVars in eqVars_dict.items():
             # Merge all selected/known vars into a single dict
-            selectedVars = {
-                **{k:v for k,v in inputVars.items()},
-                **{k:v for k,v in derivedVars.items()}}
+            selectedVars = dict(inputVars)
+            selectedVars.update(derivedVars)
 
             #Find the unknown vars for this equation
             eqVars_unknown = eqVars - selectedVars.keys()
@@ -142,21 +147,12 @@ def constraintChecker(inputVars:dict):
             if len(eqVars_unknown) != 1:
                 continue
 
-            if len(eqVars_unknown) == 1:
-                
-                unknown = list(eqVars_unknown)[0]
+            unknown = next(iter(eqVars_unknown))
+            
+            derivedVars[unknown] = None
+            running = True
 
-                if eqID in eqID_normalize:
-                    for generic, aliases in varAlias_dict.items():
-                        if unknown == generic:
-                            for alt in aliases:
-                                if alt in eqVars_dict[eqID]:
-                                    derivedVars[alt] = None
-                
-                else:
-                    derivedVars[unknown] = None
-
-                    running = True
+    print("finished")
     return derivedVars
 
 

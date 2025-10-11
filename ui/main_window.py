@@ -136,13 +136,25 @@ class InputWidget(QWidget):
 
             # Store state and value to dict
             self.fieldValues[name] = {
+                "symbol" : symbol,
                 "checkbox" : checkbox,
                 "input" : input_field,
                 "unit" : unit_dropdown,
             }
 
+            def handleToggle(state, input_field=input_field, unit_dropdown=unit_dropdown):
+                input_field.setEnabled(state)
+                if unit_dropdown:
+                    unit_dropdown.setEnabled(state)
+
             # Checkbox signal
             checkbox.toggled.connect(lambda _: self.checkboxToggled.emit())
+            checkbox.toggled.connect(handleToggle)
+
+            # Initial state
+            input_field.setEnabled(False)
+            if unit_dropdown:
+                unit_dropdown.setEnabled(False)
 
             self.row += 1
 
@@ -164,21 +176,76 @@ class InputWidget(QWidget):
 
             if checkbox.isChecked():
                 input_field = widgets["input"]
+                symbol = widgets["symbol"]
                 raw_value = input_field.text().strip()
-                if raw_value == "":
-                    value = None
-                else:
+
+                value = None
+                if raw_value:
                     try:
                         value = np.float64(raw_value)
                     except ValueError:
-                        value = None
-                        raise ValueError(f"Invalid numeric input for {name}: {raw_value}")
+                        print(f"[Warning] Invalid numeric input for {name!r}: {raw_value}")
+                        continue
 
                 unit_dropdown = widgets["unit"]
                 unit = unit_dropdown.currentText() if unit_dropdown else None
-                checked_data[name] = {"value": value, "unit": unit}
-        return checked_data
 
+                checked_data[name] = {
+                    "symbol": symbol, 
+                    "value": value, 
+                    "unit": unit
+                    }
+                
+        return checked_data
+    
+    #---------------------------------------------
+    # Disable fields
+    #---------------------------------------------
+    def disableField(self, derivedVars):
+        """Disable any fields that have their results derived"""
+        for name, widgets in self.fieldValues.items():
+            if widgets["symbol"] in derivedVars:
+
+                symbol = widgets["symbol"]
+
+                value = derivedVars[symbol]
+
+                checkbox = widgets["checkbox"]
+                checkbox.setEnabled(False)
+
+                unit_dropdown = widgets["unit"]
+                if unit_dropdown:
+                    unit_dropdown.setEnabled(False)
+
+                input_field = widgets["input"]
+                input_field.setEnabled(False)
+
+                # Update input text
+                if value is not None:
+                    input_field.setText(f"{value:.6g}")
+                else:
+                    input_field.clear()
+
+                # Add tooltip + styling
+                input_field.setToolTip("Derived automatically from other inputs")
+                input_field.setStyleSheet("color: gray; background-color: #f4f4f4;")
+
+    #---------------------------------------------
+    # Enable fields
+    #---------------------------------------------
+    def enableAllFields(self):
+        """Enable all fields"""
+        for name, widgets in self.fieldValues.items():
+            checkbox = widgets["checkbox"]
+            checkbox.setEnabled(True)
+
+            unit_dropdown = widgets["unit"]
+            
+            input_field = widgets["input"]
+            input_field.clear()
+            input_field.setToolTip("")
+            input_field.setStyleSheet("")
+                
 
 #---------------------------------------------
 # Global buttons widget
