@@ -92,7 +92,7 @@ class InputWidget(QWidget):
         self.addSection(throatInputs[0], throatInputs[1])
         self.addSection(exitInputs[0], exitInputs[1])
         self.addSection(stagnationInputs[0], stagnationInputs[1])
-        self.addSection(generalInputs[0], miscInputs[1])
+        self.addSection(generalInputs[0], generalInputs[1])
         self.addSection(miscInputs[0], miscInputs[1])
 
         self.layout.setRowStretch(self.row, 1)

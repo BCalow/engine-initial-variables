@@ -40,8 +40,10 @@ varAlias_dict = {
 
 # Eq's to be normalized
 eqID_normalize = {
+    "temperatureRatio@Chamber",
     "temperatureRatio@Throat", 
     "temperatureRatio@Exit",
+    "pressureRatio@Chamber",
     "pressureRatio@Throat",
     "pressureRatio@Exit",
 }
@@ -50,19 +52,26 @@ eqID_normalize = {
 #---------------------------------------------
 # Iterative Solver
 #---------------------------------------------
-def equationSolver(inputVars:dict, derivedVars:dict):
+def equationSolver(inputVars:dict):
     '''
     Solves equations
     '''
 
     # Raises TypeError if inputVars or derivedVars are not a dict
-    if not isinstance(inputVars, dict) or not isinstance(derivedVars, dict):
-        raise TypeError("inputVars and derivedVars must be a dict")
+    if not isinstance(inputVars, dict):
+        raise TypeError("inputVars must be a dict")
 
     running = True
+    derivedVars = {}
 
-    while running:
+    # Protection against infinite loops
+    iteration_count = 0
+    max_iterations = 50
+    tol_r, tol_a = 1e-6, 1e-9   # Relative and absolute tolerances
+
+    while running and iteration_count <= max_iterations:
         running = False
+
 
         for eqID, eqVars in eqVars_dict.items():
             #Merge all known vars into a single dict
@@ -78,6 +87,7 @@ def equationSolver(inputVars:dict, derivedVars:dict):
             usedVars = {var: knownVars.get(var, None) for var in eqVars}
 
             if len(eqVars_unknown) != 1:
+                print(f"Skipping {eqID}: unknowns = {eqVars_unknown}")
                 continue  
 
             if len(eqVars_unknown) == 1:
@@ -112,12 +122,17 @@ def equationSolver(inputVars:dict, derivedVars:dict):
                         if unknown == generic:
                             for alt in aliases:
                                 if alt in eqVars_dict[eqID]:
-                                    derivedVars[alt] = result
+                                    prev = derivedVars.get(alt)
+                                    if prev is None or not np.isclose(prev, result, rtol=1e-6, atol=1e-9):
+                                        derivedVars[alt] = result
+                                        running = True
                 
                 else:
-                    derivedVars[unknown] = result
+                    prev = derivedVars.get(unknown)
+                    if prev is None or not np.isclose(prev, result, rtol=1e-6, atol=1e-9):
+                        derivedVars[unknown] = result
+                        running = True
 
-                running = True
                 print("Running")
 
     return derivedVars
@@ -127,7 +142,6 @@ def equationSolver(inputVars:dict, derivedVars:dict):
 # Constraint Checker
 #---------------------------------------------
 def constraintChecker(inputVars:dict):
-
     '''Checks for constraints and finds derived vars'''
 
     # Raises typeError if inputVars is not a dict
@@ -141,7 +155,7 @@ def constraintChecker(inputVars:dict):
     iteration_count = 0
     max_iterations = 50
 
-    while running and iteration_count < max_iterations:
+    while running and iteration_count <= max_iterations:
         running = False
         iteration_count += 1
 
@@ -158,10 +172,11 @@ def constraintChecker(inputVars:dict):
             if len(eqVars_unknown) != 1:
                 continue
 
-            unknown = next(iter(eqVars_unknown))
+            if len(eqVars_unknown):
+                unknown = next(iter(eqVars_unknown))
             
-            derivedVars[unknown] = None
-            running = True
+                derivedVars[unknown] = None
+                running = True
 
     print("finished")
     return derivedVars
@@ -174,12 +189,15 @@ def constraintChecker(inputVars:dict):
 # Variable Normalizer
 #---------------------------------------------
 def varNormalizer(eqID, usedVars):
-    """
-    Normalizes Variable Names
-    """
+    """Normalizes variable names"""
+
     if eqID in eqID_normalize:
+        replacements = {}
         for generic, aliases in varAlias_dict.items():
             for alt in aliases:
                 if alt in usedVars:
-                    usedVars[generic] = usedVars.pop(alt)
+                    replacements[alt] = generic
+        # Apply replacements after the loop to avoid concurrent modification
+        for alt, generic in replacements.items():
+            usedVars[generic] = usedVars.pop(alt)
     return usedVars
