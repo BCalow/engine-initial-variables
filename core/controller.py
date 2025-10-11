@@ -19,8 +19,9 @@ class Controller(QObject):
     # Handlers for UI signals
     #---------------------------------------------
     def checkboxToggled(self):
-        checked = self.ui.inputSection.getCheckedVariables()
-        print(self.ui.inputSection.getCheckedVariables())
+        selectedData = self.ui.inputSection.getCheckedData()
+        constraintChecker(selectedData)
+
 
     def runClicked(self):
         checked = self.ui.inputSection.getCheckedVariables()

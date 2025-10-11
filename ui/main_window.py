@@ -23,6 +23,7 @@ from PyQt6.QtCore import(
     Qt,
     pyqtSignal
 )
+import numpy as np
 import sys
 
 
@@ -78,7 +79,7 @@ class InputWidget(QWidget):
         self.layout.setVerticalSpacing(6)
 
         self.row = 0
-        self.checkboxes = {}
+        self.fieldValues = {}
 
         self.addSection(chamberInputs[0], chamberInputs[1])
         self.addSection(throatInputs[0], throatInputs[1])
@@ -104,7 +105,6 @@ class InputWidget(QWidget):
             # Add checkbox
             checkbox = QCheckBox()
             checkbox.setChecked(False)
-            self.checkboxes[name] = checkbox
 
             # Add name, symbol, input
             label_name = QLabel(name)
@@ -119,15 +119,13 @@ class InputWidget(QWidget):
             input_field.setEnabled(False)
             checkbox.toggled.connect(input_field.setEnabled)
 
-            # Checkbox signal
-            checkbox.toggled.connect(lambda _: self.checkboxToggled.emit())
-
             # Add to widget
             self.layout.addWidget(checkbox, self.row, 0)
             self.layout.addWidget(label_name, self.row, 1)
             self.layout.addWidget(label_symbol, self.row, 2)
             self.layout.addWidget(input_field, self.row, 3)
 
+            unit_dropdown = None
             if units is not None:
                 # Add unit dropdown select
                 unit_dropdown = QComboBox()
@@ -135,6 +133,16 @@ class InputWidget(QWidget):
                 unit_dropdown.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 unit_dropdown.setFixedWidth(80)
                 self.layout.addWidget(unit_dropdown, self.row, 4)
+
+            # Store state and value to dict
+            self.fieldValues[name] = {
+                "checkbox" : checkbox,
+                "input" : input_field,
+                "unit" : unit_dropdown,
+            }
+
+            # Checkbox signal
+            checkbox.toggled.connect(lambda _: self.checkboxToggled.emit())
 
             self.row += 1
 
@@ -146,10 +154,30 @@ class InputWidget(QWidget):
         self.row += 1
 
     #---------------------------------------------
-    # Get Checked variables
+    # Get checked variables data
     #---------------------------------------------
-    def getCheckedVariables(self):
-        return [name for name, checkbox in self.checkboxes.items() if checkbox.isChecked()]
+    def getCheckedData(self):
+        """Return a dict of checked variables with their values and units."""
+        checked_data = {}
+        for name, widgets in self.fieldValues.items():
+            checkbox = widgets["checkbox"]
+
+            if checkbox.isChecked():
+                input_field = widgets["input"]
+                raw_value = input_field.text().strip()
+                if raw_value == "":
+                    value = None
+                else:
+                    try:
+                        value = np.float64(raw_value)
+                    except ValueError:
+                        value = None
+                        raise ValueError(f"Invalid numeric input for {name}: {raw_value}")
+
+                unit_dropdown = widgets["unit"]
+                unit = unit_dropdown.currentText() if unit_dropdown else None
+                checked_data[name] = {"value": value, "unit": unit}
+        return checked_data
 
 
 #---------------------------------------------

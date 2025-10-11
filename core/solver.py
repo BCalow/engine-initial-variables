@@ -133,9 +133,8 @@ def constraintChecker(inputVars:dict):
         for eqID, eqVars in eqVars_dict.items():
             # Merge all selected/known vars into a single dict
             selectedVars = {
-                **{k:v for k,v in inputVars.items()}
-                **{k:v for k,v in derivedVars.items()}
-            }
+                **{k:v for k,v in inputVars.items()},
+                **{k:v for k,v in derivedVars.items()}}
 
             #Find the unknown vars for this equation
             eqVars_unknown = eqVars - selectedVars.keys()
