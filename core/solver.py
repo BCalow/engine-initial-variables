@@ -5,11 +5,13 @@ import inspect
 import core.physics as physics
 
 
-#Equation var sets
+# Equation var sets
 eqVars_dict = {
     "specificGasConstant"       :   frozenset({"M", "R"}),                                              #Specific Gas Constant
+    "temperatureRatio@Chamber"  :   frozenset({"Ma_c", "T_c", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Chamber
     "temperatureRatio@Throat"   :   frozenset({"Ma_t", "T_t", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Throat
     "temperatureRatio@Exit"     :   frozenset({"Ma_e", "T_e", "T_s", "gamma"}),                         #Isentropic Temperature Ratio @ Exit
+    "pressureRatio@Chamber"     :   frozenset({"Ma_c", "P_c", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Chamber
     "pressureRatio@Throat"      :   frozenset({"Ma_t", "P_t", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Throat
     "pressureRatio@Exit"        :   frozenset({"Ma_e", "P_e", "P_s", "gamma"}),                         #Isentropic Pressure Ratio @ Exit
     "areaMachRelation"          :   frozenset({"A_t", "A_e", "Ma_t", "Ma_e", "gamma"}),                 #Area-Mach Relation
@@ -18,19 +20,25 @@ eqVars_dict = {
     "thrust"                    :   frozenset({"A_e", "F", "mdot", "P_a", "P_e", "v_e"}),               #Thrust
 }
 
-#Var initial guesses
+# Constants
+constantVars = {
+    "Ma_c"      :   0,
+    "Ma_t"      :   1,
+}
+
+# Var initial guesses
 guess_dict = {
     "fddf0"     :   15
 }
 
-#Var aliases
+# Var aliases
 varAlias_dict = {
-    "Ma"    :   ["Ma_t", "Ma_e"],
-    "P"     :   ["P_t", "P_e"],
-    "T"     :   ["T_t", "T_e"],
+    "Ma"    :   ["Ma_t", "Ma_e", "Ma_c"],
+    "P"     :   ["P_t", "P_e", "P_c"],
+    "T"     :   ["T_t", "T_e", "T_c"],
 }
 
-#Eq's to be normalized
+# Eq's to be normalized
 eqID_normalize = {
     "temperatureRatio@Throat", 
     "temperatureRatio@Exit",
@@ -60,7 +68,8 @@ def equationSolver(inputVars:dict, derivedVars:dict):
             #Merge all known vars into a single dict
             knownVars = {
                 **{k:v for k,v in inputVars.items() if v is not None},
-                **{k:v for k,v in derivedVars.items() if v is not None}}
+                **{k:v for k,v in derivedVars.items() if v is not None},
+                **{k:v for k,v in constantVars.items() if v is not None}}
 
             #Find the unknown vars for this equation
             eqVars_unknown = eqVars - knownVars.keys()
@@ -138,8 +147,10 @@ def constraintChecker(inputVars:dict):
 
         for eqID, eqVars in eqVars_dict.items():
             # Merge all selected/known vars into a single dict
-            selectedVars = dict(inputVars)
-            selectedVars.update(derivedVars)
+            selectedVars = {
+                **{k:v for k,v in inputVars.items()},
+                **{k:v for k,v in derivedVars.items()},
+                **{k:v for k,v in constantVars.items()}}
 
             #Find the unknown vars for this equation
             eqVars_unknown = eqVars - selectedVars.keys()

@@ -41,5 +41,22 @@ class Controller(QObject):
 
 
     def runClicked(self):
-        checked = self.ui.inputSection.getCheckedVariables()
-        print(self.ui.inputSection.getCheckedVariables())
+        """Called whenever a checkbox is toggled"""
+        selectedData = self.ui.inputSection.getCheckedData()
+        inputVars = {}
+
+        # Extract symbol:value pairs
+        for name, entry in selectedData.items():
+            symbol = entry["symbol"]
+            value = entry["value"]
+
+            inputVars[symbol] = value
+
+        derivedVars = equationSolver(inputVars)
+
+        self.ui.inputSection.enableAllFields()
+
+        if isinstance(derivedVars, dict) and derivedVars:
+            self.ui.inputSection.disableField(derivedVars)
+        else:
+            print("[Controller] No derived variables found.")
