@@ -27,18 +27,25 @@ class Controller(QObject):
         for name, entry in selectedData.items():
             symbol = entry["symbol"]
             value = entry["value"]
-
             inputVars[symbol] = value
 
-        derivedVars, overconstrainedVars = constraintChecker(inputVars)
+        # Run constraint checker
+        derivedVars = constraintChecker(inputVars)
 
+        # Enable all inputs
         self.ui.inputSection.enableAllFields()
 
-        if isinstance(derivedVars, dict) and derivedVars:
+        # Disable derived variables
+        if derivedVars:
             self.ui.inputSection.disableField(derivedVars)
-            self.ui.inputSection.disableField(overconstrainedVars)
-        else:
-            print("[Controller] No derived variables found.")
+
+        # Disable overconstrained variables
+        #if overconstrainedVars:
+            #self.ui.inputSection.disableField(overconstrainedVars)
+
+        # Debug print
+        print(f"[Controller] Derived: {list(derivedVars.keys()) if derivedVars else 'none'}")
+        #print(f"[Controller] Overconstrained: {overconstrainedVars if overconstrainedVars else 'none'}")
 
 
     def runClicked(self):

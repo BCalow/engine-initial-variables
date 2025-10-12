@@ -147,3 +147,15 @@ def pressureEquivalence(P_c, P_s):
     return (
         P_c - P_s
     )
+
+def flowRelation(P, P_s, T, T_s, gamma):
+    """
+    Isentropic Flow Relation
+
+    P       :   Pressure @ Point X
+    P_s     :   Pressure @ Stagnation
+    T       :   Temperature @ Point X
+    T_s     :   Temperature @ Stagnation
+    gamma   :   Ratio of Specific Heats
+    """
+    return (P / P_s) - ((T / T_s) ** (gamma / (gamma - 1)))

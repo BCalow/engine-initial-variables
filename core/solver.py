@@ -14,6 +14,7 @@ eqVars_dict = {
     "pressureRatio@Exit"        :   frozenset({"Ma_e", "P_e", "P_s", "gamma"}),                         # Isentropic Pressure Ratio @ Exit
     "temperatureEquivalence"    :   frozenset({"T_c", "T_s"}),                                          # Temperature Equivalence
     "pressureEquivalence"       :   frozenset({"P_c", "P_s"}),                                          # Pressure Equivalence
+    "flowRelation@Exit"         :   frozenset({"P_e", "P_s", "T_e", "T_s", "gamma"}),                   # Isentropic Flow Relation
     "areaMachRelation"          :   frozenset({"A_t", "A_e", "Ma_t", "Ma_e", "gamma"}),                 # Area-Mach Relation
     "exitVelocity"              :   frozenset({"P_e", "P_s", "T_s", "v_e", "R", "gamma"}),              # Isentropic Exit Velocity
     "massFlow"                  :   frozenset({"A_t", "mdot", "P_s", "T_s", "R", "gamma"}),             # Choked Mass Flow
@@ -142,69 +143,40 @@ def constraintChecker(inputVars:dict):
     # Raises typeError if inputVars is not a dict
     if not isinstance(inputVars, dict):
         raise TypeError("inputVars must be a dict")
-    
-    running = True
+
+    # Initialize dicts
     derivedVars = {}
+    overconstrainedVars = {}
 
-    # Protection against infinite loops
-    iteration_count = 0
-    max_iterations = 100
+    running = True
+    iteration = 0
+    maxIteration = 100
 
-    while running and iteration_count <= max_iterations:
+    while iteration < maxIteration and running:
         running = False
-        iteration_count += 1
 
         for eqID, eqVars in eqVars_dict.items():
-            # Merge all selected/known vars into a single dict
             knownVars = {
                 **{k:v for k,v in inputVars.items()},
                 **{k:v for k,v in derivedVars.items()},
-                **{k:v for k,v in constantVars.items()}}
+                **{k:v for k,v in constantVars.items()},
+            }
 
-            #Find the unknown vars for this equation
-            eqVars_unknown = eqVars - knownVars.keys()
+            unknownVars = eqVars - knownVars.keys()
 
-            if len(eqVars_unknown) != 1:
-                continue
+            if len(unknownVars) == 1:
+                unknown = list(unknownVars)[0]
 
-            if len(eqVars_unknown) == 1:
-                unknown = next(iter(eqVars_unknown))
-
-                if unknown in inputVars:
-                    continue
-            
                 derivedVars[unknown] = None
+
                 running = True
 
-    overconstrainedVars = []
-    allVars = sorted({var for vars_set in eqVars_dict.values() for var in vars_set})
+                # Debug print
+                print(f"[Constraint Checker] eqID: {eqID}")
 
-    for candidate in allVars:
-
-        # Merge all  known vars
-        knownVars = {
-            **{k:v for k,v in inputVars.items()},
-            **{k:v for k,v in derivedVars.items()},
-            **{k:v for k,v in constantVars.items()}}
-
-        # Merge all known vars with candidate var
-        knownVars_simulated = knownVars | {candidate:None}
-
-        for eqID, eqVars in eqVars_dict.items(): 
-            
-            eqVars_unknown_simulated = eqVars - knownVars_simulated.keys()
-
-            eqVars_unknown = eqVars- knownVars.keys()
-
-            # Compare if the candidate will overconstrain the equation
-            if len(eqVars_unknown_simulated) == 0 and len(eqVars_unknown) >=1:
-                if candidate not in overconstrainedVars:
-                    overconstrainedVars.append(candidate)
-                    continue
+    return derivedVars
 
 
-    print("finished")
-    return derivedVars, overconstrainedVars
 
 
 #---------------------------------------------
