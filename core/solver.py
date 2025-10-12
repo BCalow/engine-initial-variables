@@ -95,7 +95,6 @@ def equationSolver(inputVars:dict):
                 for generic, aliases in varAlias_dict.items():
                     if unknown in aliases:
                         unknown = generic
-                        break
 
                 if unknown in derivedVars:
                     continue
@@ -157,13 +156,13 @@ def constraintChecker(inputVars:dict):
 
         for eqID, eqVars in eqVars_dict.items():
             # Merge all selected/known vars into a single dict
-            selectedVars = {
+            knownVars = {
                 **{k:v for k,v in inputVars.items()},
                 **{k:v for k,v in derivedVars.items()},
                 **{k:v for k,v in constantVars.items()}}
 
             #Find the unknown vars for this equation
-            eqVars_unknown = eqVars - selectedVars.keys()
+            eqVars_unknown = eqVars - knownVars.keys()
 
             if len(eqVars_unknown) != 1:
                 continue
@@ -177,8 +176,35 @@ def constraintChecker(inputVars:dict):
                 derivedVars[unknown] = None
                 running = True
 
+    overconstrainedVars = []
+    allVars = sorted({var for vars_set in eqVars_dict.values() for var in vars_set})
+
+    for candidate in allVars:
+
+        # Merge all  known vars
+        knownVars = {
+            **{k:v for k,v in inputVars.items()},
+            **{k:v for k,v in derivedVars.items()},
+            **{k:v for k,v in constantVars.items()}}
+
+        # Merge all known vars with candidate var
+        knownVars_simulated = knownVars | {candidate:None}
+
+        for eqID, eqVars in eqVars_dict.items(): 
+            
+            eqVars_unknown_simulated = eqVars - knownVars_simulated.keys()
+
+            eqVars_unknown = eqVars- knownVars.keys()
+
+            # Compare if the candidate will overconstrain the equation
+            if len(eqVars_unknown_simulated) == 0 and len(eqVars_unknown) >=1:
+                if candidate not in overconstrainedVars:
+                    overconstrainedVars.append(candidate)
+                    continue
+
+
     print("finished")
-    return derivedVars
+    return derivedVars, overconstrainedVars
 
 
 #---------------------------------------------
@@ -193,7 +219,6 @@ def varNormalizer(eqID, usedVars):
             for alt in aliases:
                 if alt in usedVars:
                     replacements[alt] = generic
-        # Apply replacements after the loop to avoid concurrent modification
         for alt, generic in replacements.items():
             usedVars[generic] = usedVars.pop(alt)
     return usedVars

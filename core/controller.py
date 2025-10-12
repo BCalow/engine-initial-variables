@@ -30,12 +30,13 @@ class Controller(QObject):
 
             inputVars[symbol] = value
 
-        derivedVars = constraintChecker(inputVars)
+        derivedVars, overconstrainedVars = constraintChecker(inputVars)
 
         self.ui.inputSection.enableAllFields()
 
         if isinstance(derivedVars, dict) and derivedVars:
             self.ui.inputSection.disableField(derivedVars)
+            self.ui.inputSection.disableField(overconstrainedVars)
         else:
             print("[Controller] No derived variables found.")
 
