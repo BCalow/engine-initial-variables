@@ -74,7 +74,7 @@ def exitVelocity(P_e, P_s, T_s, v_e, R, gamma):
     T_s     :   Stagnation Temperature
     v_e     :   Velocity @ Exit
     gamma   :   Ratio Of Specific Heats
-    R       :   Specific Gas Constan
+    R       :   Specific Gas Constant
 
     0 = v_e - sqrt((2 * gamma) / (gamma - 1) * R * T_s * (1 - (P_e / P_s) ** ((gamma - 1) / gamma)))
     """

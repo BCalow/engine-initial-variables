@@ -44,6 +44,7 @@ eqID_normalize = {
     "temperatureRatio@Exit",
     "pressureRatio@Throat",
     "pressureRatio@Exit",
+    "flowRelation@Exit",
 }
 
 
@@ -146,7 +147,6 @@ def constraintChecker(inputVars:dict):
 
     # Initialize dicts
     derivedVars = {}
-    overconstrainedVars = {}
 
     running = True
     iteration = 0
@@ -154,6 +154,7 @@ def constraintChecker(inputVars:dict):
 
     while iteration < maxIteration and running:
         running = False
+        iteration += 1
 
         for eqID, eqVars in eqVars_dict.items():
             knownVars = {
@@ -172,10 +173,9 @@ def constraintChecker(inputVars:dict):
                 running = True
 
                 # Debug print
-                print(f"[Constraint Checker] eqID: {eqID}")
+                print(f"[Constraint Checker] solved eqID: {eqID}")
 
     return derivedVars
-
 
 
 

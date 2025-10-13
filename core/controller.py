@@ -39,13 +39,8 @@ class Controller(QObject):
         if derivedVars:
             self.ui.inputSection.disableField(derivedVars)
 
-        # Disable overconstrained variables
-        #if overconstrainedVars:
-            #self.ui.inputSection.disableField(overconstrainedVars)
-
         # Debug print
         print(f"[Controller] Derived: {list(derivedVars.keys()) if derivedVars else 'none'}")
-        #print(f"[Controller] Overconstrained: {overconstrainedVars if overconstrainedVars else 'none'}")
 
 
     def runClicked(self):
