@@ -48,21 +48,21 @@ def pressureRatio(Ma, P, P_s, gamma):
         P /P_s - (1 + 0.5 * (gamma - 1) * Ma ** 2) ** (-gamma / (gamma - 1))
     )
 
-def areaMachRelation(A_x, A_y, Ma_x, Ma_y, gamma):
+def areaMachRelation(A_t, A_e, Ma_t, Ma_e, gamma):
     """
     Area-Mach Relation
 
-    A_x     :   Area @ Point X
-    A_y     :   Area @ Point Y
-    Ma_x    :   Mach Number @ Point X
-    Ma_y    :   Mach Number @ Point Y
+    A_t     :   Area @ Throat
+    A_e     :   Area @ Exit
+    Ma_t    :   Mach Number @ Throat
+    Ma_e    :   Mach Number @ Exit
     gamma   :   Ratio Of Specific Heats
 
     0 = A_y / A_x - Ma_x / Ma_y * sqrt(((1 + (gamma - 1) / 2 * Ma_y ^ 2) / (1 + (gamma - 1) / 2 * Ma_x ^ 2)) ^ ((gamma + 1) / (gamma - 1)))
     """
 
     return (
-        A_y / A_x - Ma_x / Ma_y * numpy.sqrt(((1 + (gamma - 1) / 2 * Ma_y ** 2) / (1 + (gamma - 1) / 2 * Ma_x ** 2)) ** ((gamma + 1) / (gamma - 1)))
+        A_e / A_t - Ma_t / Ma_e * numpy.sqrt(((1 + (gamma - 1) / 2 * Ma_e ** 2) / (1 + (gamma - 1) / 2 * Ma_t ** 2)) ** ((gamma + 1) / (gamma - 1)))
     )
 
 def exitVelocity(P_e, P_s, T_s, v_e, R, gamma):
